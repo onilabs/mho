@@ -1,0 +1,13 @@
+#!/bin/bash
+
+MHO_VERSION=latest
+
+# XXX check that we docker installed with api version >=1.25
+
+MHO_OPTS=~/.mho-local; [ -f $MHO_OPTS ] && . $MHO_OPTS
+
+if [ -t 0 ]; then
+   MHO_TTY_OPTS='-t'
+fi
+
+docker run --rm -i $MHO_TTY_OPTS -v /var/run/docker.sock:/var/run/docker.sock -e "HOST_UID=$(id -u)" -e "HOST_GID=$(id -g)" $MHO_DOCKER_OPTS onilabs/mho:$MHO_VERSION "$@"
