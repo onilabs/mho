@@ -10,4 +10,4 @@ if [ -t 0 ]; then
    MHO_TTY_OPTS='-t'
 fi
 
-docker run --rm -i $MHO_TTY_OPTS -v /var/run/docker.sock:/var/run/docker.sock -e "HOST_UID=$(id -u)" -e "HOST_GID=$(id -g)" $MHO_DOCKER_OPTS onilabs/mho:$MHO_VERSION "$@"
+docker run --rm -i $MHO_TTY_OPTS -v /var/run/docker.sock:/var/run/docker.sock -e "HOST_UID=$(id -u)" -e "HOST_GID=$(id -g)" -e "HOST_WD=$(pwd)" $MHO_DOCKER_OPTS onilabs/mho:$MHO_VERSION "$@"
