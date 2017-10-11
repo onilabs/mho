@@ -14,6 +14,8 @@ function peelOpts(argv, opts) {
       if (opt.arg) {
         if (!argv.length) exitWithHelp("Missing argument for option #{argname}");
         val = argv.shift();
+        if (opt.arg.parse)
+          val = opt.arg.parse(val);
       }
       else
         val = true;

@@ -2,7 +2,9 @@
 
 @ = require([
   'mho:std',
-  {id:'./commandline-parsing', name:'commandline'}
+  {id:'./commandline-parsing', name:'commandline'},
+  {id:'mho:services', name:'services'},
+  {id:'./docker', name:'docker'}
 ]);
 
 //----------------------------------------------------------------------
@@ -30,7 +32,10 @@ var COMMAND_SYNTAX = {
       opts: {
         '-v': {
           arg: { name: 'version', default: 'latest' }
-        }
+        },
+        '-p': {
+          arg: { name: 'ports', default: [], parse: x -> x.split(',') }
+        },
       },
       commands: {
         'run': {
@@ -44,7 +49,7 @@ var COMMAND_SYNTAX = {
 
 var [exec, pars] = @commandline.dispatch(COMMAND_SYNTAX, ARGV);
 //console.log(exec);
-//console.log(pars ..@inspect);
+//console.log(pars ..@inspect(5, 5));
 
 if (!pars[0].opts['-q'])
   console.log("mho - the stratified javascript ide");
@@ -56,9 +61,23 @@ process.exit(0);
 // commands
 
 function conductance_run([{/*mho*/}, 
-                          {/*conductance*/ opts: {'-v':conductance_version}}, 
+                          {/*conductance*/ opts: {'-v':conductance_version, 
+                                                  '-p':ports}}, 
                           {/*run*/ args:run_args}
                          ]) {
-  console.log(conductance_version);
-  console.log(run_args);
+
+  @services.initGlobalRegistry(@services.ServicesRegistry({
+    docker : @services.builtinServices.docker .. @merge({provisioning_data:{}})
+  }));
+
+  @services.withService('docker') {
+    |docker|
+
+    docker .. @docker.runSubContainer({
+      Image: "onilabs/conductance:#{conductance_version}",
+      args: run_args,
+      ports: ports
+    });
+  }
+
 }
