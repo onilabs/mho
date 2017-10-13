@@ -24,21 +24,27 @@ var ENV = ['HOST_WD', 'HOST_GID', 'HOST_UID'] ..
 var ARGV = @argv();
 
 var COMMAND_SYNTAX = {
+  name: 'mho',
   opts: {
-    '-q': {}
+    '-q': { help_txt: "Don't print superfluous information to stdout." }
   },
   commands: {
     'conductance': {
       opts: {
         '-v': {
-          arg: { name: 'version', default: 'latest' }
+          help_txt: 'version of conductance to run (default: latest)',
+          arg: { name: 'VERSION', default: 'latest' }
         },
         '-p': {
-          arg: { name: 'ports', default: [], parse: x -> x.split(',') }
+          help_txt: 'container ports to open on host (comma-separated list)', 
+          arg: { name: 'PORTS', default: [], parse: x -> x.split(',') }
         },
       },
       commands: {
         'run': {
+          summary_txt: 'Execute conductance in a sandboxed container.',
+          help_txt: 'Executes conductance in a sandboxed container. Run without arguments for help. Note that only the current working directory (and sub-directories) will be available to the container (mapped under XXX).',
+          arg_txt: '[ARGS...]',
           exec: conductance_run
         }
       }
