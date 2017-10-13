@@ -37,7 +37,6 @@ function peelOpts(argv, opts) {
 function formatHelp(syntax, command_path, argv) {
   var rv = [];
 
-  //XXXXXXXXXXXXXX
   // locate syntax @ command given by argv:
   while (argv.length) {
     peelOpts(argv, syntax.opts); // ignore opts
@@ -46,7 +45,6 @@ function formatHelp(syntax, command_path, argv) {
     command_path.push(argv[0]);
     syntax = syntax.commands[argv.shift()];
   }
-  //XXXXXXXXXXXXXX
 
   if (argv.length)
     rv.push("Unknown command '#{argv[0]}'\n");
