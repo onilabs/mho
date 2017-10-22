@@ -2,7 +2,7 @@
   'mho:std'
 ]);
 
-function peelOpts(argv, opts) {
+function peelOpts(argv, opts, ignoreErrors) {
   var rv = {};
   if (opts) {
     while (argv.length) {
@@ -12,7 +12,11 @@ function peelOpts(argv, opts) {
       argv.shift();
       var val;
       if (opt.arg) {
-        if (!argv.length) exitWithHelp("Missing argument for option #{argname}");
+        if (!argv.length) {
+          if (ignoreErrors) return rv;
+          console.log("Missing argument for option #{argname}.");
+          process.exit(1);
+        }
         val = argv.shift();
         if (opt.arg.parse)
           val = opt.arg.parse(val);
@@ -36,10 +40,9 @@ function peelOpts(argv, opts) {
 
 function formatHelp(syntax, command_path, argv) {
   var rv = [];
-
   // locate syntax @ command given by argv:
   while (argv.length) {
-    peelOpts(argv, syntax.opts); // ignore opts
+    peelOpts(argv, syntax.opts, true); // ignore opts
     if (!syntax.commands || !syntax.commands[argv[0]])
       break;
     command_path.push(argv[0]);
@@ -97,7 +100,7 @@ function dispatch(syntax, argv, command_path) {
   pars.opts = peelOpts(argv, syntax.opts);
   if (argv.length && syntax.commands && syntax.commands[argv[0]]) {
     var command_name = argv.shift();
-    [exec, subpars] = dispatch(syntax.commands[command_name], argv, command_path.concat());
+    [exec, subpars] = dispatch(syntax.commands[command_name], argv, command_path.concat(command_name));
     subpars[0].command = command_name;
     return [exec, [pars].concat(subpars)];
   }
@@ -108,10 +111,9 @@ function dispatch(syntax, argv, command_path) {
   }
   else {
     if (!syntax.exec) {
-      if (argv.length)
-        exitWithHelp("Unknown command '#{argv[0]}'");
-      else
-        exitWithHelp("Incomplete commandline");
+      // parse error 
+      console.log(formatHelp(syntax, command_path, argv));
+      process.exit(1);
     }
     pars.args = argv;
     return [syntax.exec, [pars]];
@@ -119,8 +121,5 @@ function dispatch(syntax, argv, command_path) {
 }
 exports.dispatch = dispatch;
 
-function exitWithHelp(err) {
-  err ? console.log(err);
-  process.exit(err ? 1 : 0);
-}
+
 
