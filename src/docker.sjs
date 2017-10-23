@@ -15,7 +15,8 @@ exports.runSubContainer = function(docker, settings) {
     Image: undefined,
     ports: [],
     args: [],
-    allowFailure: false
+    allow_failure: false,
+    volume_binds: []
   } .. @override(settings);
 
   var tty_mode = process.stdin.isTTY;
@@ -34,9 +35,11 @@ exports.runSubContainer = function(docker, settings) {
       Image: settings.Image,
       OpenStdin: true,
       Tty: tty_mode, 
+      WorkingDir: '/usr/src/app',
       HostConfig: {
         AutoRemove: true,
         NetworkMode: 'bridge',
+        Binds: settings.volume_binds,
         PortBindings: PortBindings,
       },
       ExposedPorts: ExposedPorts,
@@ -88,7 +91,7 @@ exports.runSubContainer = function(docker, settings) {
     var exitStatus = (docker .. @dockerREST.containerWait({
       id: container_id}));
     if (exitStatus.StatusCode !== 0) {
-      if (!settings.allowFailure) 
+      if (!settings.allow_failure) 
         exitWithError("Container #{container_id} exited with non-zero exit status.");
       return false;
     }

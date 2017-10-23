@@ -43,7 +43,7 @@ var COMMAND_SYNTAX = {
       commands: {
         'run': {
           summary_txt: 'Execute conductance in a sandboxed container.',
-          help_txt: 'Executes conductance in a sandboxed container. Run without arguments for help. Note that only the current working directory (and sub-directories) will be available to the container (mapped under XXX).',
+          help_txt: 'Executes conductance in a sandboxed container. Run without arguments for help. Note that only the current working directory (and sub-directories) will be available to the container (mapped under /usr/src/app).',
           arg_txt: '[ARGS...]',
           exec: conductance_run
         }
@@ -82,7 +82,8 @@ function conductance_run([{/*mho*/},
     docker .. @docker.runSubContainer({
       Image: "onilabs/conductance:#{conductance_version}",
       args: run_args,
-      ports: ports
+      ports: ports,
+      volume_binds: ["#{ENV.HOST_WD}:/usr/src/app"]
     });
   }
 
